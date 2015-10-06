@@ -1,4 +1,4 @@
-## exdata
+## exdata Plot4.R
 ##
 ## Common preprocess pattern.  Time data rolled into Date column.
 ##
@@ -6,21 +6,24 @@
 ##
 ##
 ## PREPROCESS
-if(!file.exists("data")) dir.create("data")
-fileUrl = "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
-myFile = "./data/household_power_consumption.txt"
-download.file(fileUrl, myFile)
-dateDownloaded = date()
-electricityData = read.table(myFile, sep  = ";", header = TRUE,
+# if(!file.exists("data")) dir.create("data")
+# dataDir <- "./data"
+# #fileUrl = "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
+# fileUrl <- "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip"
+# myFile = "./data/POWER.zip"
+# download.file(fileUrl, myFile)
+# dateDownloaded = date()
+# unzip(myFile)
+myFile = "household_power_consumption.txt"
+electricityData = read.table(myFile, sep = ";", header = TRUE,
         na.strings = "?", stringsAsFactors = FALSE)
+str(electricityData)
 electricityData$Date <- as.Date(electricityData$Date, format = "%d/%m/%Y")
-electricityData <- subset(electricityData, Date >= "2007-02-01" & Date <= "2007-02-02")
 electricityData$Date <- as.POSIXct(paste(electricityData$Date, " ",
                                          electricityData$Time),
-                                         format = "%Y-%m-%d %H:%M:%S")
-
-
-
+                                   format = "%Y-%m-%d %H:%M:%S")
+electricityData <- electricityData[electricityData$Date >= "2007-02-01" &
+                                   electricityData$Date <= "2007-02-02", ]
 
 
 ## Plot4.R
@@ -63,6 +66,7 @@ legend("topright", legend = c("Sub metering 1",
                               "Sub metering 3"),
        col = c("black", "red", "blue"),
        lty = 1,
+       bty = "n",
        pch = c(15, 15, 15, 15))
 
 

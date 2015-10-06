@@ -1,6 +1,6 @@
 ## Introduction
 ## 
-11 Sep 2015 (Remember flying N5299A out of the New York area that day fourteen years ago.)
+October 2015
 
 This document is simply to remind me that the first assignment for exdata, which seems so simple now that it's done, made me crazy.
 
