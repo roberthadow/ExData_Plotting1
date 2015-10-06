@@ -20,7 +20,6 @@ electricityData$Date <- as.POSIXct(paste(electricityData$Date, " ",
                                          electricityData$Time),
                                    format = "%Y-%m-%d %H:%M:%S")
 
-
 ## Plot2.R
 ##
 
