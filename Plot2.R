@@ -3,8 +3,7 @@
 ## Common preprocess pattern.  Time data rolled into Date column.
 ##
 ## All plots using plot().
-##
-##
+####
 ## PREPROCESS
 fileUrl <- "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip"
 myFile = "./data/POWER.zip"
@@ -20,7 +19,6 @@ electricityData <- electricityData[electricityData$Date == "2007-02-01" |
 electricityData$Date <- as.POSIXct(paste(electricityData$Date, " ",
                                          electricityData$Time),
                                    format = "%Y-%m-%d %H:%M:%S")
-
 
 
 ## Plot2.R
