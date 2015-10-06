@@ -23,7 +23,6 @@ electricityData$Date <- as.POSIXct(paste(electricityData$Date, " ",
                                    format = "%Y-%m-%d %H:%M:%S")
 
 
-
 ## Plot1.R
 ##
 plotData <- electricityData[["Global_active_power"]]
