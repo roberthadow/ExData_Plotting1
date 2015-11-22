@@ -9,8 +9,7 @@
 	
 	<!-- LOAD STYLE SHEETS -->
 	<link rel="stylesheet" href="libraries/frameworks/html5slides/default/styles.css">
-	<link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />  <link rel="stylesheet" href = "assets/css/ribbons.css">
-  
+	<link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />    
 </head>
 <body style='display: none'>
 	<section class='slides layout-regular template-regular'>
@@ -43,15 +42,15 @@
   <h3>Behind the scenes, we used R to solve a system of simultaneous linear equations quite painlessly</h3>
   <p>\[A*x=b\]</p>
 
-<p>$\begin{equation<em>}
+<p>\[\begin{equation*}
 \mathbf{A} = \left(
 \begin{array}{ccc}
-1 &amp; 1 &amp; 1 &amp; 1 \
-Prev-1 &amp; Prev &amp; Prev-1 &amp; Prev \
-Sens-1 &amp; 0 &amp; Sens &amp; 0 \
-0 &amp; Spec &amp; 0 &amp; Spec-1  \
+1 & 1 & 1 & 1 \\
+Prev-1 & Prev & Prev-1 & Prev \\
+Sens-1 & 0 & Sens & 0 \\
+0 & Spec & 0 & Spec-1  \\
 \end{array} \right)
-\end{equation</em>}$</p>
+\end{equation*}\]</p>
 
 <p>\[\begin{equation*}
 \mathbf{b} = \left(
