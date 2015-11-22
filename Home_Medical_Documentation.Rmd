@@ -1,0 +1,220 @@
+---
+title: "Home Medical Documentation"
+author: "Robert Hadow"
+output:
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+    number_sections: yes
+  word_document:
+    reference_docx: knitr-template.docx
+    toc: no
+---
+<!---  output: 
+  word_document:
+     reference_docx: knitr-template.docx
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+    number_sections: yes
+-->
+
+## Abstract
+
+We built a simple two-dropdown interface for users to evaluate the practical meaning of pregnancy, HIV, and mammography tests. It relies on a small database of underlying statistics.
+
+The application has user documentation in the form of hover help.
+
+# Technical Description
+
+The application is built in R, using the Shiny package.  It has two components, a web-based client side **ui.R** and a server side server **server.R**
+
+The client side is dependent on the browser and Javascript.
+
+The server side is dependent on a Shiny server engine.
+
+# Client Side code
+
+
+
+interface expands to include more factors for users who are interested in the details.
+
+The design could be expanded to capture use-entered data and to provide confidence intervals for these measures.
+
+```{r client_code, cache=FALSE}
+#rmarkdown::run('Home_Medical_Documentation.Rmd') 
+
+# Hadow DevDataProd Shiny application
+# ui.R
+
+mi <- .00000001 # min for numbers
+ma <- .99999999 # max fornumbers
+ms <- .01      # step
+
+library(shiny)
+shinyUI(pageWithSidebar(
+
+headerPanel("Probability of Disease Given a Test Result"),
+
+sidebarPanel(
+          tags$div(title="A medical test that gives a positive or negative indication",
+                   selectInput("uite", "Test:",
+        choices = c('Mammogram','PSA', "HIV", "another"))),
+        tags$div(title="The test indication you received",
+                 selectInput( "uitr", "Test Result:",
+        choices = c('Positive','Negative'))),
+        h4("_________________________"),
+
+conditionalPanel(
+          condition = "input.uite == 'another'",
+          tags$div(title="You can enter a new test or different parameters",
+                   textInput("uitn", "Enter Another Test:")),
+          tags$div(title="Prevalence is the percent of the population with this disease.
+                 High risk populations have a higher number. Enter a number between 0 and 1.0",
+                   numericInput("uipr", "Prevalence:",  0.0, min = mi, max=ma, step=ms)),
+          tags$div(title="Sensitivity is the proportion of correctly identified positive conditions. Enter a number between 0 and 1.0",
+                   numericInput("uise", "Sensitivity:", 0.0, min = mi, max=ma, step=ms)),
+          tags$div(title="Specificity is the proportion of correctly identified negative conditions. Enter a number between 0 and 1.0",
+                   numericInput("uisp", "Specificity:", 0.0, min = mi, max=ma, step=ms))
+  )),
+
+  mainPanel(
+    h4('Diagostic Test'),
+    verbatimTextOutput("uote"),
+    h4('Test Results'),
+    verbatimTextOutput("uotr"),
+    h2(HTML("<br>")),
+    h4(HTML("Scroll down or zoom out for results.  Hover the cursor for instructions.")),
+    h4(HTML("<br>")),
+    h5('Disease Prevalence'),
+    verbatimTextOutput("uopr"),
+    h5('Test Sensitivity'),
+    verbatimTextOutput("uose"),
+    h5('Test Specificity'),
+    verbatimTextOutput("uosp"),
+    h4('Predictive Power (Probability that the test result reflects reality)'),
+    verbatimTextOutput("uopp"),
+    h4("Confusion Matrix"),
+    tags$div(title="TP - True Positive; FN - False Negative; FP - False Positive; TN - True Negative",
+             verbatimTextOutput("uocm"))
+)
+))
+        
+```
+        
+
+
+# Server Side Code
+
+
+## Behind the scenes, we used R to solve a system of simultaneous linear equations quite painlessly
+
+$\begin{equation*}
+\mathbf{A} = \left(
+\begin{array}{ccc}
+1 & 1 & 1 & 1 \\
+Prev-1 & Prev & Prev-1 & Prev \\
+Sens-1 & 0 & Sens & 0 \\
+0 & Spec & 0 & Spec-1  \\
+\end{array} \right)
+\end{equation*}$
+
+$\begin{equation*}
+\mathbf{b} = \left(
+\begin{array}{ccc}
+1 \\
+0 \\
+0 \\
+0 \\
+\end{array} \right)
+\end{equation*}$
+
+$In\ R,\ the\ command\ is\ simple:\  x \leftarrow solve(A,b)$
+
+
+## One time per user code
+
+We create a data frame that describes three common medical tests.  We initialized several other objects of the type and size we would later require. This code is run once only when a user establishes a session.
+
+## Once per update code
+
+At each update of the web page, there are two sets of code that run. One is primarily for managing communications with the web page. The other manages data look-up and computations. 
+
+### Function **shinyServer**
+
+Function shinyServer collects user input from the web page and dispatches results back to the web page. At each web page event, it calls function **calc**.
+
+### Function **calc**
+
+Calc accepts all fothe information cllected cy the web pags as arguments.  It makesa decsion whether to look up additional data based on the data coming from the web page.  It assembles a matrix it uses to solve simulataneous linar equations.  It performs severa minor calcuations and returns a list data object to shinyServer.  This object includes atomic vectors and matrices for dispaly to the user.
+
+Here is one nifty piece of code that allows you to pull data from other sources without writing a separate function. This one can pull from a datastore or user input.
+
+```{r server_side, cache= FALSE}
+
+# Hadow DevDataProd Shiny application
+# server.R
+
+test <- c("Mammogram","PSA","HIV")
+prev <- c(0.01,.01,.003)
+sens <- c(.678,.631, .95)
+spec <- c(.75,.349,.95)
+test <- data.frame(test, prev, sens, spec)
+rm(prev, sens, spec)
+#test = read.csv("test.csv", header=TRUE)
+
+A <- array(c(1, 0, 0, 0), c(4,4))  # A, b, and z are setups for linear equations
+b <-  c(1, 0, 0, 0)  #
+z <-  c(1, 10, -7, 4)  # z is the solution to the linear equations of TP,FN etc
+
+calc <- function(te, tr, pr, se, sp, tn) {
+        if (te == "another") test <- tn
+        else {    # Assemble a set of linear equations from lookup or user input
+                pr <- test[te == test$test, "prev"]
+                se <- test[te == test$test, "sens"]
+                sp <- test[te == test$test, "spec"]
+        }
+        A[2,2] <- A[2,4] <- pr
+        A[2,1] <- A[2,3] <- pr -1
+        A[3,3] <- se
+        A[3,1] <- se - 1
+        A[4,2] <- sp
+        A[4,4] <- sp - 1
+
+        z  <- solve(A,b)  # solve the set of simultaneous linear equations
+        pp <- ifelse(tr == "Positive", z[1]/(z[1] + z[2]), z[4]/(z[3] + z[4]))
+        W <- NULL; W$pp <-0
+        W$A <- A
+        W$pp <- pp
+        W$test <- test
+        W$z <-z
+        cm1 <- c("True Positive", "False Negative")
+        cm4 <- c("False Positive", "True Negative")
+        cm2 <- c(z[1], z[3])
+        cm3 <- c(z[2], z[4])
+        cm <- data.frame(cm1, cm2, cm3, cm4)
+        colnames(cm) <- c(" ", "Disease", " ", " ")
+        W$cm <- cm
+        W
+        }
+
+shinyServer(function(input, output) {
+
+        output$uotr <- reactive({input$uitr})
+        reactive({tr <- ifelse(input$uitr == "Positive", "Positive", "Negative")})
+        output$uote <- reactive({ifelse(input$uite == "another", input$uitn, input$uite)})
+        output$uopr <- reactive({ifelse(input$uite == "another", input$uipr,
+                test[input$uite == test$test, "prev"])})
+        output$uose <- reactive({ifelse(input$uite == "another", input$uise,
+                test[input$uite == test$test, "sens"])})
+        output$uosp <- reactive({ifelse(input$uite == "another", input$uisp,
+                test[input$uite == test$test, "spec"])})
+        output$uopp <- reactive({calc(input$uite, input$uitr, input$uipr,
+                input$uise, input$uisp, input$uitn)$pp})
+        output$uocm <- renderPrint({calc(input$uite, input$uitr, input$uipr,
+                                         input$uise, input$uisp, input$uitn)$cm})
+})
+
+
+```
+        
