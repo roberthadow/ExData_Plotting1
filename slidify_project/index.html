@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<title>Home Medical Tests</title>
+	<meta name="description" content="Home Medical Tests">
+	<meta name="author" content="Robert Hadow">
+	<meta name="generator" content="slidify" />
+	
+	<!-- LOAD STYLE SHEETS -->
+	<link rel="stylesheet" href="libraries/frameworks/html5slides/default/styles.css">
+	<link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />  <link rel="stylesheet" href = "assets/css/ribbons.css">
+  
+</head>
+<body style='display: none'>
+	<section class='slides layout-regular template-regular'>
+     <article class="" id="slide-1" style="background:;">
+  <h3>Should I trust my e.p.t. or HIV test?</h3>
+  <p>We built a simple two-dropdown interface for users to evaluate the practical meaning of medical tests. It has hover help.</p>
+
+<p><img src="assets/img/Pregnancy.png" alt="Pregnancy"></p>
+
+</article>
+
+<article class="" id="slide-2" style="background:;">
+  <h3>We built a straighforward, boring, text-only interface to calculate positive and negative predictive values of diagnostic tests.  For three common tests, mammography, HIV and PSA, the interface asks only two questions:</h3>
+  <ul>
+<li>Test</li>
+<li>Result</li>
+</ul>
+
+<p>For interested users, the input area expands, allowing an input of specific factors.</p>
+
+<ul>
+<li>Prevalence of Condition</li>
+<li>Test Sensitivity</li>
+<li>Test Specificity</li>
+</ul>
+
+</article>
+
+<article class="" id="slide-3" style="background:;">
+  <h3>Behind the scenes, we used R to solve a system of simultaneous linear equations quite painlessly</h3>
+  <p>\[A*x=b\]</p>
+
+<p>$\begin{equation<em>}
+\mathbf{A} = \left(
+\begin{array}{ccc}
+1 &amp; 1 &amp; 1 &amp; 1 \
+Prev-1 &amp; Prev &amp; Prev-1 &amp; Prev \
+Sens-1 &amp; 0 &amp; Sens &amp; 0 \
+0 &amp; Spec &amp; 0 &amp; Spec-1  \
+\end{array} \right)
+\end{equation</em>}$</p>
+
+<p>\[\begin{equation*}
+\mathbf{b} = \left(
+\begin{array}{ccc}
+1 \\
+0 \\
+0 \\
+0 \\
+\end{array} \right)
+\end{equation*}\]</p>
+
+<p>In R, the command is simple:  \(x \leftarrow solve(A,b)\)</p>
+
+</article>
+
+<article class="" id="slide-4" style="background:;">
+  <h3>See the whole slidify page here: <a href="http://www.w3schools.com">Home Medical Tests</a></h3>
+  <p>Here is one nifty piece of code that allows you to pull data from other sources without writing a separate function. This one can pull from a datastore or user input.</p>
+
+<p>In this case, we simulate user selection of <em>Mammogram</em>, whose data already resides in the <em>test</em> object. We pull the prevalence statistic. If the test were not to be found, it would use the user supplied value for prevalence.</p>
+
+<pre><code class="r">input$uite = &quot;Mammogram&quot;
+
+output$uopr &lt;- reactive({ifelse(input$uite == &quot;another&quot;, input$uipr,
+                test[input$uite == test$test, &quot;prev&quot;])})
+
+output$uopr   # display the prevalence of breast cancer in the general population
+</code></pre>
+
+<pre><code>## [1] 0.01
+</code></pre>
+
+</article>
+
+<article class="" id="slide-5" style="background:;">
+  <h3>Lessons Learned and Opportunities for Development</h3>
+  <p>Shiny requires strict attention to compartmentalizing most data manipulation activity <strong>outside</strong> the shinyServer anonymous function.  Concentrate on data presentation in this code block.</p>
+
+<p>Efficient operation of <em>server.R</em> requires logical design.  Troubleshooting <em>ui.R</em> requires wrangling lots of brackets and commas.</p>
+
+<p>The <strong>conditionalPanel</strong> command is very useful for managing screen-space.  Hover help also helps a clean appearance.</p>
+
+<p>The design could be expanded to capture user-entered data and to provide confidence intervals for these measures.</p>
+
+</article>
+
+  </section>
+</body>
+  <!-- LOAD JAVASCRIPTS  -->
+	<script src='libraries/frameworks/html5slides/default/slides.js'></script>
+	<!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+	<script type="text/x-mathjax-config">
+	  MathJax.Hub.Config({
+	    tex2jax: {
+	      inlineMath: [['$','$'], ['\\(','\\)']],
+	      processEscapes: true
+	    }
+	  });
+	</script>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script> -->
+	<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+	<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+	<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+	 
+	</html>
