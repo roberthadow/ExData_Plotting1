@@ -109,7 +109,7 @@ conditionalPanel(
 
 ## Behind the scenes, we used R to solve a system of simultaneous linear equations quite painlessly
 
-$\begin{equation*}
+$$\begin{equation*}
 \mathbf{A} = \left(
 \begin{array}{ccc}
 1 & 1 & 1 & 1 \\
@@ -117,9 +117,9 @@ Prev-1 & Prev & Prev-1 & Prev \\
 Sens-1 & 0 & Sens & 0 \\
 0 & Spec & 0 & Spec-1  \\
 \end{array} \right)
-\end{equation*}$
+\end{equation*}$$
 
-$\begin{equation*}
+$$\begin{equation*}
 \mathbf{b} = \left(
 \begin{array}{ccc}
 1 \\
@@ -127,9 +127,9 @@ $\begin{equation*}
 0 \\
 0 \\
 \end{array} \right)
-\end{equation*}$
+\end{equation*}$$
 
-$In\ R,\ the\ command\ is\ simple:\  x \leftarrow solve(A,b)$
+$$In\ R,\ the\ command\ is\ simple:\  x \leftarrow solve(A,b)$$
 
 
 ## One time per user code
